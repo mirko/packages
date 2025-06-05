@@ -22,4 +22,11 @@ config LIBDRM_RADEON
 	help
 		Installs the Radeon driver.
 
+config LIBDRM_ETNAVIV
+	bool "Vivante/Etnaviv support"
+	default y
+	depends on arm
+	help
+		Installs the Radeon driver.
+
 endmenu

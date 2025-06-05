@@ -17,6 +17,7 @@ PKG_MAINTAINER:=Lucian Cristian <lucian.cristian@gmail.com>
 PKG_LICENSE:=BSD-3-Clause
 
 PKG_CONFIG_DEPENDS:= \
+	CONFIG_LIBDRM_ETNAVIV \
 	CONFIG_LIBDRM_INTEL \
 	CONFIG_LIBDRM_NOUVEAU \
 	CONFIG_LIBDRM_RADEON
@@ -47,13 +48,13 @@ MESON_ARGS += \
 	-Dradeon=$(if $(CONFIG_LIBDRM_RADEON),en,dis)abled \
 	-Damdgpu=disabled \
 	-Dnouveau=$(if $(CONFIG_LIBDRM_NOUVEAU),en,dis)abled \
+	-Detnaviv=$(if $(CONFIG_LIBDRM_ETNAVIV),en,dis)abled \
 	-Dvmwgfx=disabled \
 	-Domap=disabled \
 	-Dexynos=disabled \
 	-Dfreedreno=disabled \
 	-Dtegra=disabled \
 	-Dvc4=disabled \
-	-Detnaviv=disabled \
 	-Dcairo-tests=disabled \
 	-Dman-pages=disabled \
 	-Dvalgrind=disabled \
