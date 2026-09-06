@@ -203,6 +203,7 @@ PKG_CONFIG_DEPENDS:= \
 	CONFIG_FFMPEG_PROGRAMS \
 	CONFIG_FFMPEG_LIBDRM \
 	CONFIG_FFMPEG_V4L2_M2M \
+	CONFIG_FFMPEG_V4L2_REQUEST \
 	CONFIG_FFMPEG_VAAPI \
 	CONFIG_FFMPEG_LIBV4L2 \
 	CONFIG_FFMPEG_TLS_NONE \
@@ -298,6 +299,8 @@ $(call Package/libffmpeg/Default)
 	+FFMPEG_BZLIB:libbz2 \
 	+FFMPEG_LZMA:liblzma \
 	+FFMPEG_LIBDRM:libdrm \
+	+FFMPEG_V4L2_REQUEST:libdrm \
+	+FFMPEG_V4L2_REQUEST:libudev \
 	+FFMPEG_VAAPI:libva \
 	+FFMPEG_LIBV4L2:libv4l \
 	+FFMPEG_TLS_GNUTLS:libgnutls \
@@ -399,12 +402,16 @@ FFMPEG_CONFIGURE:= \
 	--disable-vulkan \
 	--disable-vaapi \
 	--disable-libdrm \
-	--disable-v4l2-m2m
+	--disable-v4l2-m2m \
+	--disable-v4l2-request \
+	--disable-libudev
 # Everything configure would autodetect on a Linux host is switched off
 # explicitly above. --disable-autodetect already implies this; the explicit
 # list documents the intent and is independent of changes to configure's
 # autodetect list. The libffmpeg variant re-enables bzlib/iconv/lzma and the
 # hwaccels through its FFMPEG_* options below; later flags take precedence.
+# v4l2-request and libudev are introduced by patches/120-v4l2-request.patch,
+# which also makes v4l2-request autodetected.
 
 ifeq ($(CONFIG_SOFT_FLOAT),y)
 FFMPEG_CONFIGURE+= \
@@ -488,6 +495,8 @@ ifeq ($(BUILD_VARIANT),default)
   # by patches/100-postproc.patch (LibreELEC), which also re-introduces the
   # --enable/--disable-postproc option; it is GPL-only, so it follows the GPL
   # option. Kodi requires it.
+  # v4l2-request/libudev: options from patches/120-v4l2-request.patch, see
+  # the common block above.
   FFMPEG_CONFIGURE+= \
 	$(call FFMPEG_OPT,FFMPEG_GPL,gpl) \
 	$(call FFMPEG_OPT,FFMPEG_GPL,postproc) \
@@ -497,6 +506,8 @@ ifeq ($(BUILD_VARIANT),default)
 	$(if $(CONFIG_FFMPEG_OPTIMIZE_SIZE),--disable-hardcoded-tables,--enable-hardcoded-tables) \
 	$(call FFMPEG_OPT,FFMPEG_LIBDRM,libdrm) \
 	$(call FFMPEG_OPT,FFMPEG_V4L2_M2M,v4l2-m2m) \
+	$(call FFMPEG_OPT,FFMPEG_V4L2_REQUEST,v4l2-request) \
+	$(call FFMPEG_OPT,FFMPEG_V4L2_REQUEST,libudev) \
 	$(call FFMPEG_OPT,FFMPEG_VAAPI,vaapi) \
 	$(call FFMPEG_OPT,FFMPEG_LIBV4L2,libv4l2) \
 	$(call FFMPEG_OPT,FFMPEG_TLS_GNUTLS,gnutls) \
@@ -544,6 +555,7 @@ ifeq ($(BUILD_VARIANT),default)
 		$(if $(CONFIG_FFMPEG_DECODER_adpcm),--enable-decoder=adpcm_*) \
 		$(if $(CONFIG_FFMPEG_TLS_NONE),,--enable-protocol=tls --enable-protocol=https) \
 		$(if $(CONFIG_FFMPEG_V4L2_M2M),--enable-decoder=*_v4l2m2m --enable-encoder=*_v4l2m2m) \
+		$(if $(CONFIG_FFMPEG_V4L2_REQUEST),--enable-hwaccel=*_v4l2request) \
 		$(if $(CONFIG_FFMPEG_VAAPI),--enable-hwaccel=*_vaapi) \
 		$(if $(CONFIG_FFMPEG_LIBDAV1D),--enable-decoder=libdav1d) \
 		$(if $(CONFIG_FFMPEG_LIBOPUS),--enable-decoder=libopus --enable-encoder=libopus) \
